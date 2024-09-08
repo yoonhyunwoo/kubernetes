@@ -39,7 +39,6 @@ import (
 const (
 	maxTTL    = 24 * time.Hour
 	gcPeriod  = time.Minute
-	maxJitter = 10 * time.Second
 )
 
 // NewManager returns a new token manager.
@@ -175,9 +174,13 @@ func (m *Manager) requiresRefresh(tr *authenticationv1.TokenRequest) bool {
 		klog.ErrorS(nil, "Expiration seconds was nil for token request", "tokenRequest", cpy)
 		return false
 	}
+
 	now := m.clock.Now()
 	exp := tr.Status.ExpirationTimestamp.Time
 	iat := exp.Add(-1 * time.Duration(*tr.Spec.ExpirationSeconds) * time.Second)
+
+	// Dynamically set maxJitter to 15% of the token's TTL
+	maxJitter := time.Duration(15 * float64(*tr.Spec.ExpirationSeconds/100) * float64(time.Second))
 
 	jitter := time.Duration(rand.Float64()*maxJitter.Seconds()) * time.Second
 	if now.After(iat.Add(maxTTL - jitter)) {
