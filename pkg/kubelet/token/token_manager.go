@@ -37,8 +37,8 @@ import (
 )
 
 const (
-	maxTTL    = 24 * time.Hour
-	gcPeriod  = time.Minute
+	maxTTL   = 24 * time.Hour
+	gcPeriod = time.Minute
 )
 
 // NewManager returns a new token manager.
