@@ -180,7 +180,7 @@ func (m *Manager) requiresRefresh(tr *authenticationv1.TokenRequest) bool {
 	iat := exp.Add(-1 * time.Duration(*tr.Spec.ExpirationSeconds) * time.Second)
 
 	// Dynamically set maxJitter to 15% of the token's TTL
-	maxJitter := 15 / 100 * float64(*tr.Spec.ExpirationSeconds)
+	maxJitter := float64(*tr.Spec.ExpirationSeconds) * 15 / 100
 
 	jitter := time.Duration(rand.Float64()*maxJitter) * time.Second
 	if now.After(iat.Add(maxTTL - jitter)) {
